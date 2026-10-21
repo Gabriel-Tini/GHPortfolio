@@ -350,25 +350,12 @@
         <a class="nav-link" href="#contato">Contato</a>
       </nav>
       <div class="nav-actions">
-        <button class="icon-btn" id="wallpaperSettingsBtn" type="button" aria-label="Configurar wallpaper" title="Wallpaper" aria-expanded="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/></svg>
-        </button>
         <button class="icon-btn" id="themeToggle" type="button" aria-label="Alternar tema claro/escuro" title="Alternar tema">
           <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.3 15.3A8.5 8.5 0 0 1 8.7 3.7 8.5 8.5 0 1 0 20.3 15.3Z"/></svg>
         </button>
       </div>
     </div>
   </header>
-
-  <aside class="settings-pop" id="wallpaperSettings" aria-label="Configurações do wallpaper">
-    <div class="settings-head"><strong>Ambiente visual</strong><button class="icon-btn" id="closeSettings" aria-label="Fechar configurações" style="width:29px;height:29px">×</button></div>
-    <div class="settings-row"><label for="blurRange">Desfoque <span id="blurValue">20 px</span></label><input id="blurRange" type="range" min="0" max="32" value="20" /></div>
-    <div class="settings-row"><label for="opacityRange">Intensidade <span id="opacityValue">31%</span></label><input id="opacityRange" type="range" min="5" max="60" value="31" /></div>
-    <input type="file" id="wallpaperUpload" accept="image/*" hidden />
-    <button class="btn btn-ghost upload-wall" id="uploadWallpaperBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 16V4m-5 5 5-5 5 5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg> Enviar wallpaper</button>
-    <button class="text-link" id="resetWallpaper" type="button" style="margin-top:14px;color:var(--muted)">Restaurar padrão ↺</button>
-    <p class="small-note">Imagens e projetos ficam neste navegador. Você pode me enviar as capas separadamente para incorporá-las à versão final do portfólio.</p>
-  </aside>
 
   <main>
     <section class="hero" id="home">
@@ -721,10 +708,6 @@
           reader.readAsDataURL(file);
         });
       }
-      function openSettings(open) {
-        $('#wallpaperSettings').classList.toggle('open', open);
-        $('#wallpaperSettingsBtn').setAttribute('aria-expanded', String(open));
-      }
       function setTheme(theme) {
         document.documentElement.dataset.theme = theme;
         localStorage.setItem(THEME_KEY, theme);
@@ -734,12 +717,6 @@
           : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>';
         document.querySelector('meta[name="theme-color"]').setAttribute('content', isDark ? '#101012' : '#f4f3f1');
       }
-      function restoreWallpaper() {
-        $('#wallpaper').style.backgroundImage = `url('${DEFAULT_WALLPAPER}')`;
-        localStorage.removeItem(WALLPAPER_KEY); setBlur(20); setOpacity(31); showToast('Wallpaper padrão restaurado.');
-      }
-      function setBlur(value) { document.documentElement.style.setProperty('--blur', `${value}px`); $('#blurValue').textContent = `${value} px`; $('#blurRange').value = value; }
-      function setOpacity(value) { document.documentElement.style.setProperty('--wallpaper-alpha', (Number(value) / 100).toString()); $('#opacityValue').textContent = `${value}%`; $('#opacityRange').value = value; }
 
       // Header state, scroll progress, active section and subtle wallpaper parallax.
       const topbar = $('#topbar');
@@ -815,7 +792,7 @@
       $('#closeDetailModal').addEventListener('click', closeDetail);
       $('#projectModalBackdrop').addEventListener('click', event => { if (event.target === $('#projectModalBackdrop')) closeProjectModal(); });
       $('#detailModalBackdrop').addEventListener('click', event => { if (event.target === $('#detailModalBackdrop')) closeDetail(); });
-      document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeProjectModal(); closeDetail(); closeEmailModal(); closePhoneModal(); openSettings(false); } });
+      document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeProjectModal(); closeDetail(); closeEmailModal(); closePhoneModal(); } });
       $('#editFromDetail').addEventListener('click', () => { const project = projects.find(item => item.id === activeDetailId); closeDetail(); if (project) openProjectModal(project); });
       $('#deleteFromDetail').addEventListener('click', () => {
         const project = projects.find(item => item.id === activeDetailId); if (!project) return;
@@ -855,21 +832,6 @@
       });
 
       $('#themeToggle').addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
-      $('#wallpaperSettingsBtn').addEventListener('click', () => openSettings(!$('#wallpaperSettings').classList.contains('open')));
-      $('#closeSettings').addEventListener('click', () => openSettings(false));
-      $('#blurRange').addEventListener('input', event => setBlur(event.target.value));
-      $('#opacityRange').addEventListener('input', event => setOpacity(event.target.value));
-      $('#uploadWallpaperBtn').addEventListener('click', () => $('#wallpaperUpload').click());
-      $('#wallpaperUpload').addEventListener('change', async event => {
-        const file = event.target.files?.[0]; if (!file) return;
-        try {
-          const wallpaper = await processImage(file, 1900, .78);
-          try { localStorage.setItem(WALLPAPER_KEY, wallpaper); } catch (_) { showToast('Wallpaper aplicado, mas é grande demais para salvar.'); }
-          $('#wallpaper').style.backgroundImage = `url('${wallpaper}')`; showToast('Wallpaper atualizado.');
-        } catch (error) { showToast(error.message || 'Não foi possível aplicar o wallpaper.'); }
-        event.target.value = '';
-      });
-      $('#resetWallpaper').addEventListener('click', restoreWallpaper);
       // O contato está configurado diretamente no HTML para evitar prompts e cliques inesperados.
       // O link mailto: abre o aplicativo de e-mail configurado pelo visitante.
 
