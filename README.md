@@ -2,7 +2,7 @@
 
 Desenvolvedor de IA júnior com foco prático em **LLMs**, **arquiteturas RAG**, **Machine Learning** e **automação de software**.
 
-🌐 **Acesse online:** [https://gabriel-tini.github.io](https://gabriel-tini.github.io)
+🌐 **Acesse online:** [https://gabriel-tini.github.io/GHPortfolio/](https://gabriel-tini.github.io/GHPortfolio/)
 
 ---
 
